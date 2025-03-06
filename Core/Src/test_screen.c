@@ -8,6 +8,7 @@
 #include "test_screen.h"
 #include "ssd1306.h"
 #include "fonts.h"
+#include "stdio.h"
 
 extern I2C_HandleTypeDef hi2c1;
 extern void Error_Handler(void);
@@ -70,11 +71,18 @@ void runTestScreen(void)
 	    uint8_t dir = 1;
 	    char *msg5 =">";
 	    char *msg6 ="<";
+
+	    uint32_t tick_save = 0;
+	    uint32_t dt = 0;
+	    char buf[128] = {0};
 	    while(1)
 	    {
+	    	tick_save = HAL_GetTick();
 	    	ssd1306_Fill(Black);
 
-
+	    	sprintf(buf, "delay: %lu", dt);
+	    	ssd1306_SetCursor(0, 40);
+	    	ssd1306_WriteString(buf, Font_11x18, White);
 	    	if(dir)
 	    	{
 		    	ssd1306_SetCursor(0, 0);
@@ -90,7 +98,7 @@ void runTestScreen(void)
 
 		    for (uint8_t i=0; i<l; i++)
 		    {
-		        for (uint8_t j=0; j<40; j++)
+		        for (uint8_t j=0; j<20; j++)
 		        {
 		            ssd1306_DrawPixel(0+i, 20+j, White);
 		        }
@@ -98,6 +106,7 @@ void runTestScreen(void)
 		    ssd1306_UpdateScreen(&hi2c1);
 		    if(l==128) dir = 0;
 		    if(l==0)   dir = 1;
+		    dt = HAL_GetTick() - tick_save;
 	    }
 
 
