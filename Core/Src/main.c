@@ -106,8 +106,8 @@ int main(void)
 
 
   // runTestScreen();
-//  runRadio();
-  runTestScreen();
+  runRadio();
+  // runTestScreen();
   /* USER CODE END 2 */
 
   /* Infinite loop */
