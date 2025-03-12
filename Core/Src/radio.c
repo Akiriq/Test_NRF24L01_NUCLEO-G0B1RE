@@ -217,6 +217,13 @@ void send_payload(uint8_t* payload,uint8_t length)
 
 	// Transmit a packet
 	tx_res = nRF24_TransmitPacket(payload, length);
+
+    // Set operational mode (PRX == receiver)
+    nRF24_SetOperationalMode(nRF24_MODE_RX);
+
+    // Put the transceiver to the RX mode
+    nRF24_CE_H();
+
 	switch (tx_res)
 	{
 		case nRF24_TX_SUCCESS:
@@ -234,11 +241,7 @@ void send_payload(uint8_t* payload,uint8_t length)
 	}
 	UART_SendStr("\r\n");
 
-    // Set operational mode (PRX == receiver)
-    nRF24_SetOperationalMode(nRF24_MODE_RX);
 
-    // Put the transceiver to the RX mode
-    nRF24_CE_H();
 }
 
 
@@ -324,6 +327,7 @@ void runRadio(void)
     // Put the transceiver to the RX mode
     nRF24_CE_H();
 
+    uint8_t button_released = 1;
 
     // The main loop
     while (1)
@@ -350,5 +354,17 @@ void runRadio(void)
 			UART_SendStr("<\r\n");
 			SCREEN_Print_BufHex(nRF24_payload, payload_length, pipe);
     	}
+    	if (!HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin) && button_released)
+    	{
+    		button_released = 0;
+    		uint8_t payload_to_send[5] = {0x11,0x22,0x33,0x44,0xaa};
+    		send_payload(payload_to_send, 5);
+    		HAL_Delay(2);
+    	}
+    	if (!button_released && HAL_GPIO_ReadPin(B1_GPIO_Port, B1_Pin))
+    	{
+    		button_released = 1;
+    	}
+
     }
 }
